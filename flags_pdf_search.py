@@ -114,11 +114,11 @@ if __name__ == "__main__":
 
     DB = {
         'drivername': 'postgres',
-        'database': 'pdfs',
-        'host': 'ec2-54-202-180-1.us-west-2.compute.amazonaws.com',
-        'port': '5432',
-        'username': 'textminer',
-        'password': "'Infrared spectroscopy'"
+        'database': '*',
+        'host': '*',
+        'port': '*',
+        'username': '*',
+        'password': "'*'"
     }
 
     dsn = "host={} dbname={} user={} password={}".format(DB['host'],
