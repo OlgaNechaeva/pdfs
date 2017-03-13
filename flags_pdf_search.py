@@ -31,7 +31,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--db_password", help="Input the database password.", required=False, type=str)
 
     parser.add_argument("-s", "--search_engine", help="""Input a search engine you are going to use.
-                        There are five search engines you might use:   
+                        There are five search engines you might use:
                         'https://duckduckgo.com/'
                         'https://bing.com/'
                         'http://www.ask.com/'
