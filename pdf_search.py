@@ -31,43 +31,41 @@ def process_google_spreadsheet(url, colnames):
     return df
 
 
-parser = argparse.ArgumentParser()
-# parser.add_argument("-l", "--google_link",
-#                     help="Input a link to the Google sheet published as csv, where the keywords are.",
-#                     required=False, type=str)
-parser.add_argument("-c", "--csv_path", help="Input a path to the csv file, where the keywords are.",
-                    required=False, type=str)
+SEARCH_ENGINE = 'https://duckduckgo.com/'
+"""
+    There are five search engines you might use:
+    'https://duckduckgo.com/'
+    'https://bing.com/'
+    'http://www.ask.com/'
+    'https://www.yandex.ru/'
+    'https://www.yahoo.com/'
+    Choose one of them.
+"""
 
-parser.add_argument("-o", "--host", help="Input the database host.", required=False, type=str)
+google_link = 'NaN'
+csv_path = '/home/user/PycharmProjects/Selenium/keywords.txt'
+host = 'NaN'
+db_name = 'NaN'
+db_user = 'NaN'
+db_password = 'NaN'
 
-parser.add_argument("-n", "--db_name", help="Input the database name.", required=False, type=str)
-
-parser.add_argument("-u", "--db_user", help="Input the database user.", required=False, type=str)
-
-parser.add_argument("-p", "--db_password", help="Input the database password.", required=False, type=str)
-
-parser.add_argument("-s", "--search_engine", help="Input a search engine you are going to use.", required=False,
-                    type=str)
-args = parser.parse_args()
-SEARCH_ENGINE = args.search_engine
-
-if args.google_link:
-    _google_sheet_link = args.google_link
+if google_link != 'NaN':
+    _google_sheet_link = google_link
     print("We are getting keywords from google sheet!")
     column_name = ["keywords"]
     data_frame = process_google_spreadsheet(url=_google_sheet_link, colnames=column_name)
     print(data_frame)
-    _keywords = data_frame['keywords'].tolist()
-if args.csv_path:
-    _path_to_csv = args.csv_path
+    keywords = data_frame['keywords'].tolist()
+if csv_path != 'NaN':
+    _path_to_csv = csv_path
     print("We are getting keywords from csv file!")
     key_df = pd.read_csv(_path_to_csv, sep=',', header=None)
-    _keywords = key_df[0].tolist()
-if args.host and args.db_name and args.db_user and args.db_password:
-    _db_host = args.host
-    _db_name = args.db_name
-    _db_user = args.db_user
-    _db_password = args.db_password
+    keywords = key_df[0].tolist()
+if host != 'NaN' and db_name != 'NaN' and db_user != 'NaN' and db_password != 'NaN':
+    _db_host = host
+    _db_name = db_name
+    _db_user = db_user
+    _db_password = db_password
     print("We are getting keywords from database!")
     _db_port = '5432'
     _engine = create_engine(
@@ -90,10 +88,10 @@ if args.host and args.db_name and args.db_user and args.db_password:
     connection.autocommit = True
     cur.execute("select keyword from table keywords")
     rows = cur.fetchall()
-    _keywords = list(rows[0])
-if not (args.google_link and args.csv_path and args.host and args.db_name
-        and args.db_user and args.db_password and args.kwargs):
+    keywords = list(rows[0])
+if google_link == 'NaN' and csv_path == 'NaN' and host == 'NaN' and db_name == 'NaN' and db_user == 'NaN' and db_password == 'NAN':
     print("No source of keywords have been chosen! Try again!")
+    keywords = []
 
 TOPIC = 'test'
 FILETYPE = 'pdf'
@@ -119,11 +117,12 @@ dsn = "host={} dbname={} user={} password={}".format(DB['host'],
 
 connection = psycopg2.connect(dsn)
 cur = connection.cursor()
-
+print("We have connected to database")
 parser = etree.HTMLParser()
 browser = webdriver.PhantomJS()
 browser.get(SEARCH_ENGINE)
 if SEARCH_ENGINE == 'https://www.yahoo.com/':
+    print("We have chosen ", SEARCH_ENGINE, "search engine")
     ALL_LINKS_XPATH = yahoo_fun.ALL_LINKS_XPATH
     LINK_XPATH = yahoo_fun.LINK_XPATH
     SNIPPET_XPATH = yahoo_fun.SNIPPET_XPATH
@@ -133,6 +132,7 @@ if SEARCH_ENGINE == 'https://www.yahoo.com/':
     yahoo_fun.yahoo_crawler(SEARCH_ENGINE, FILETYPE, keywords, ALL_LINKS_XPATH, LINK_XPATH, RESULT_XPATH, TITLE_XPATH,
                             SNIPPET_XPATH, NEXT_PAGE_XPATH, TOPIC, browser, parser, engine, PAGES_LIMIT, LINKS_LIMIT)
 elif SEARCH_ENGINE == 'https://www.yandex.ru/':
+    print("We have chosen ", SEARCH_ENGINE, "search engine")
     ALL_LINKS_XPATH = yandex_fun.ALL_LINKS_XPATH
     LINK_XPATH = yandex_fun.LINK_XPATH
     SNIPPET_XPATH = yandex_fun.SNIPPET_XPATH
@@ -142,6 +142,7 @@ elif SEARCH_ENGINE == 'https://www.yandex.ru/':
     yandex_fun.yandex_crawler(SEARCH_ENGINE, FILETYPE, keywords, ALL_LINKS_XPATH, LINK_XPATH, RESULT_XPATH, TITLE_XPATH,
                               SNIPPET_XPATH, NEXT_PAGE_XPATH, TOPIC, browser, parser, engine, PAGES_LIMIT, LINKS_LIMIT)
 elif SEARCH_ENGINE == 'http://www.ask.com/':
+    print("We have chosen ", SEARCH_ENGINE, "search engine")
     ALL_LINKS_XPATH = ask_fun.ALL_LINKS_XPATH
     LINK_XPATH = ask_fun.LINK_XPATH
     SNIPPET_XPATH = ask_fun.SNIPPET_XPATH
@@ -150,6 +151,7 @@ elif SEARCH_ENGINE == 'http://www.ask.com/':
     ask_fun.ask_crawler(SEARCH_ENGINE, FILETYPE, keywords, ALL_LINKS_XPATH, LINK_XPATH, TITLE_XPATH, SNIPPET_XPATH,
                         NEXT_PAGE_XPATH, TOPIC, browser, parser, engine, PAGES_LIMIT, LINKS_LIMIT)
 elif SEARCH_ENGINE == 'https://bing.com/':
+    print("We have chosen ", SEARCH_ENGINE, "search engine")
     ALL_LINKS_XPATH = bing_fun.ALL_LINKS_XPATH
     LINK_XPATH = bing_fun.LINK_XPATH
     SNIPPET_XPATH = bing_fun.SNIPPET_XPATH
@@ -159,6 +161,7 @@ elif SEARCH_ENGINE == 'https://bing.com/':
     bing_fun.bing_crawler(SEARCH_ENGINE, FILETYPE, keywords, ALL_LINKS_XPATH, LINK_XPATH, RESULT_XPATH, TITLE_XPATH,
                           SNIPPET_XPATH, NEXT_PAGE_XPATH, TOPIC, browser, parser, engine, PAGES_LIMIT, LINKS_LIMIT)
 elif SEARCH_ENGINE == 'https://duckduckgo.com/':
+    print("We have chosen ", SEARCH_ENGINE, "search engine")
     ALL_LINKS_XPATH = duckduckgo_fun.ALL_LINKS_XPATH
     LINK_XPATH = duckduckgo_fun.LINK_XPATH
     SNIPPET_XPATH = duckduckgo_fun.SNIPPET_XPATH
