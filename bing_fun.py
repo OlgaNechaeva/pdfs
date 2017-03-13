@@ -1,13 +1,9 @@
-import psycopg2
 import requests
-import argparse
 import pandas as pd
 from io import StringIO, BytesIO
 from lxml import etree
 from time import sleep
 from random import randint
-from selenium import webdriver
-from sqlalchemy import create_engine
 from selenium.webdriver.common.keys import Keys
 
 
@@ -104,52 +100,10 @@ def bing_crawler(_search_engine, _file_type, list_of_keywords, _all_links_xpath,
                 next_page_exist = False
         sleep(randint(20, 30))
 
-parse = argparse.ArgumentParser()
-parse.add_argument("-l", "--csv_link", help="You should type here the google sheet csv link where keywords are.")
-args = parse.parse_args()
-keywords_link = args.csv_link
-column_name = ["keywords"]
-data_frame = process_google_spreadsheet(url=keywords_link, colnames=column_name)
-print(data_frame)
-keywords = data_frame['keywords'].tolist()
-print(keywords, len(keywords))
 
-TOPIC = 'test'
-SEARCH_ENGINE = "https://bing.com/"
 ALL_LINKS_XPATH = ".//div[@id='b_content']/ol[@id='b_results']/li[@class = 'b_algo']"
 LINK_XPATH = ".//h2/a/@href"
 SNIPPET_XPATH = ".//div[@class='b_caption']/p//text()"
 TITLE_XPATH = ".//h2/a[@href]//text()"
 RESULT_XPATH = ".//div[@id='b_content']//span[@class='sb_count']/text()"
 NEXT_PAGE_XPATH = '//nav[@role = "navigation"]//a[@title="Next page"]'
-FILETYPE = 'pdf'
-PAGES_LIMIT = 'NaN'
-LINKS_LIMIT = 3
-
-parser = etree.HTMLParser()
-browser = webdriver.PhantomJS()
-browser.get(SEARCH_ENGINE)
-engine = create_engine(
-    'postgresql://textminer:Infrared spectroscopy@ec2-54-202-180-1.us-west-2.compute.amazonaws.com:5432/pdfs')
-
-DB = {
-    'drivername': 'postgres',
-    'database': 'pdfs',
-    'host': 'ec2-54-202-180-1.us-west-2.compute.amazonaws.com',
-    'port': '5432',
-    'username': 'textminer',
-    'password': "'Infrared spectroscopy'"
-}
-
-dsn = "host={} dbname={} user={} password={}".format(DB['host'],
-                                                     DB['database'],
-                                                     DB['username'],
-                                                     DB['password'])
-connection = psycopg2.connect(dsn)
-cur = connection.cursor()
-
-bing_crawler(SEARCH_ENGINE, FILETYPE, keywords, ALL_LINKS_XPATH, LINK_XPATH, RESULT_XPATH,
-             TITLE_XPATH, SNIPPET_XPATH, NEXT_PAGE_XPATH, TOPIC, browser, parser, engine, PAGES_LIMIT, LINKS_LIMIT)
-
-cur.close()
-connection.close()

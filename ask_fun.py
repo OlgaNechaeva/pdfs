@@ -1,13 +1,9 @@
-import psycopg2
 import requests
-import argparse
 import pandas as pd
 from io import StringIO, BytesIO
 from lxml import etree
 from time import sleep
 from random import randint
-from selenium import webdriver
-from sqlalchemy import create_engine
 from selenium.webdriver.common.keys import Keys
 
 
@@ -95,51 +91,9 @@ def ask_crawler(_search_engine, _file_type, list_of_keywords, _all_links_xpath, 
         sleep(randint(20, 30))
 
 
-parse = argparse.ArgumentParser()
-parse.add_argument("-l", "--csv_link", help="You should type here the google sheet csv link where keywords are.")
-args = parse.parse_args()
-keywords_link = args.csv_link
-column_name = ["keywords"]
-data_frame = process_google_spreadsheet(url=keywords_link, colnames=column_name)
-print(data_frame)
-keywords = data_frame['keywords'].tolist()
-print(keywords, len(keywords))
-
-TOPIC = 'test'
-SEARCH_ENGINE = "http://www.ask.com/"
 ALL_LINKS_XPATH = ".//div[@class = 'l-content']//div[@class ='web-result ur tsrc_tled ']"
 LINK_XPATH = ".//h2/a/@href"
 SNIPPET_XPATH = ".//p[@class = 'web-result-description']/text()"
 TITLE_XPATH = ".//h2/a[@href]/text()"
 NEXT_PAGE_XPATH = "//div[@class = 'l-pagination pagination']//li[text()='Next']"
-FILETYPE = 'pdf'
-PAGES_LIMIT = 'NaN'
-LINKS_LIMIT = 3
 
-parser = etree.HTMLParser()
-browser = webdriver.PhantomJS()
-browser.get(SEARCH_ENGINE)
-
-engine = create_engine(
-    'postgresql://textminer:Infrared spectroscopy@ec2-54-202-180-1.us-west-2.compute.amazonaws.com:5432/pdfs')
-
-DB = {
-    'drivername': 'postgres',
-    'database': 'pdfs',
-    'host': 'ec2-54-202-180-1.us-west-2.compute.amazonaws.com',
-    'port': '5432',
-    'username': 'textminer',
-    'password': "'Infrared spectroscopy'"
-}
-
-dsn = "host={} dbname={} user={} password={}".format(DB['host'],
-                                                     DB['database'],
-                                                     DB['username'],
-                                                     DB['password'])
-connection = psycopg2.connect(dsn)
-cur = connection.cursor()
-
-ask_crawler(SEARCH_ENGINE, FILETYPE, keywords, ALL_LINKS_XPATH, LINK_XPATH, TITLE_XPATH, SNIPPET_XPATH, NEXT_PAGE_XPATH,
-            TOPIC, browser, parser, engine, PAGES_LIMIT, LINKS_LIMIT)
-cur.close()
-connection.close()
