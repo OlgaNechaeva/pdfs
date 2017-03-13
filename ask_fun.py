@@ -143,3 +143,4 @@ ask_crawler(SEARCH_ENGINE, FILETYPE, keywords, ALL_LINKS_XPATH, LINK_XPATH, TITL
             TOPIC, browser, parser, engine, PAGES_LIMIT, LINKS_LIMIT)
 cur.close()
 connection.close()
+# 
